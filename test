@@ -1,14 +1,14 @@
-local AutoParryHelper = {}
+local Ap = {}
 
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
 
-function AutoParryHelper.Balls()
+function Ap.Balls()
     local Balls = {}
     for _, ball in pairs(workspace:WaitForChild("Balls"):GetChildren()) do
         if ball:IsA("BasePart") and ball:GetAttribute("realBall") then
             table.insert(Balls, ball)
-            if #Balls == 2 then
+            if #Balls == 1 then
                 break
             end
         end
@@ -17,7 +17,7 @@ function AutoParryHelper.Balls()
 end
 
 
-function AutoParryHelper.IsPlayerTarget(ball)
+function Ap.IsPlayerTarget(ball)
     return ball:GetAttribute("target") == localPlayer.Name
 end
 
@@ -26,8 +26,8 @@ local Services = {
     game:GetService('SocialService')
 }
 
-function AutoParryHelper.isAlive(Entity)
+function Ap.isAlive(Entity)
     return Entity.Character and workspace.Alive:FindFirstChild(Entity.Name) and workspace.Alive:FindFirstChild(Entity.Name).Humanoid.Health > 0
 end
 
-return AutoParryHelper
+return Ap
