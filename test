@@ -1,10 +1,12 @@
-local Ap = {}
-
-local Players = game:GetService("Players")
-local localPlayer = Players.LocalPlayer
-
 function Ap.Balls()
     local Balls = {}
+    local part_zoomies = nil
+    
+    local training_balls = workspace:FindFirstChild("TrainingBalls")
+    if training_balls and training_balls:IsA("BasePart") then
+        part_zoomies = training_balls:GetAttribute("zoomies")
+    end
+
     for _, ball in pairs(workspace:WaitForChild("Balls"):GetChildren()) do
         if ball:IsA("BasePart") and ball:GetAttribute("realBall") then
             table.insert(Balls, ball)
@@ -13,21 +15,6 @@ function Ap.Balls()
             end
         end
     end
-    return Balls
+
+    return Balls, part_zoomies
 end
-
-
-function Ap.IsPlayerTarget(ball)
-    return ball:GetAttribute("target") == localPlayer.Name
-end
-
-local Services = {
-    game:GetService('AdService'),
-    game:GetService('SocialService')
-}
-
-function Ap.isAlive(Entity)
-    return Entity.Character and workspace.Alive:FindFirstChild(Entity.Name) and workspace.Alive:FindFirstChild(Entity.Name).Humanoid.Health > 0
-end
-
-return Ap
