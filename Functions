@@ -1,0 +1,218 @@
+local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+local funcs = {
+    String = {},
+    Table = {},
+}
+
+function funcs:GetCharacter(player)
+    if player.Character then
+        return player.Character
+    end
+    return false
+end
+function funcs:GetHumanoid(player)
+    local Character = funcs:GetCharacter(player)
+    if Character then
+        if Character:FindFirstChildOfClass("Humanoid") then
+            return Character:FindFirstChildOfClass("Humanoid")
+        end
+    end
+    return false
+end
+function funcs:GetHumanoidRootPart(player)
+    local Character = funcs:GetCharacter(player)
+    if Character then
+        if Character:FindFirstChild("HumanoidRootPart") then
+            return Character["HumanoidRootPart"]
+        end
+        local Humanoid = funcs:GetHumanoid(player)
+        if Humanoid then
+            if Humanoid.RootPart ~= nil then
+                return Humanoid.RootPart
+            end
+        end
+    end
+    return false
+end
+funcs.GetHRP = funcs.GetHumanoidRootPart
+function funcs:GetDistanceBetweenPlayers(player1, player2)
+    local HRP1 = funcs:GetHumanoidRootPart(player1)
+    local HRP2 = funcs:GetHumanoidRootPart(player2)
+
+    if HRP1 and HRP2 then
+        local Distance = (HRP1.Position - HRP2.Position).Magnitude
+        return Distance
+    end
+end
+function funcs:Notify(Title, Text, Duration, options)
+    StarterGui:SetCore("SendNotification", {
+        Title = Title,
+        Text = Text,
+        Duration = Duration,
+        unpack(options)
+    })
+end
+funcs.GetDistBetweenPlayers = funcs.GetDistanceBetweenPlayers
+function funcs:GetDistanceBetweenParts(part1, part2)
+    local Distance = (part1 - part2).Magnitude
+    return Distance
+end
+funcs.GetDistBetweenParts = funcs.GetDistanceBetweenParts
+function funcs:GetPlayer(name, options)
+    for _, v in pairs(game:GetService("Players"):GetPlayers()) do
+        if (v.Name:lower():sub(1, #name) == name:lower() or (options.IncludeDisplays and v.DisplayName:lower():sub(1, #name) == name:lower())) then
+            if not (options.ExcludePlayers and type(options.ExcludePlayers) == "table" and table.find(options.ExcludePlayers, v)) then
+                return v
+            end
+        end
+    end    
+end
+function funcs:Teleport(Pos)
+    if typeof(Pos) == "Vector3" then
+        Pos = CFrame.new(Pos.X, Pos.Y, Pos.Z)
+    end
+    if typeof(Pos) == "CFrame" then
+        local hrp = funcs:GetHumanoidRootPart(Players.LocalPlayer)
+        if hrp then
+            hrp.CFrame = Pos
+            return true
+        end
+    end
+    return false
+end
+function funcs:TeleportToPlayer(player)
+    local HRP1 = funcs:GetHumanoidRootPart(Players.LocalPlayer)
+    local HRP2 = funcs:GetHumanoidRootPart(player)
+
+    if HRP1 and HRP2 then
+        HRP1.CFrame = HRP2.CFrame
+    end
+end
+function funcs.String:RemoveLetters(text, ...)
+    local args = {...}
+    for i = 1, #text do
+        local char = text:Sub(i, i)
+        if not table.find(args, char) then
+            text = text .. char
+        end
+    end
+    return text
+end
+function funcs.String:RemoveCharacterAtPosition(text, ...)
+    local args = {...}
+    for _, v in ipairs(args) do
+        text = text:sub(1, v - 1) .. text:sub(v + 1)
+    end
+    return text
+end
+
+funcs.String.RemoveCharacterAtPos = funcs.String.RemoveCharacterAtPosition
+funcs.String.RemoveCharAtPos = funcs.String.RemoveCharacterAtPosition
+funcs.String.RemoveCharAtPosition = funcs.String.RemoveCharacterAtPosition
+
+function funcs:SayMessage(...)
+    local args = {...}
+    for i, v in ipairs(args) do
+        game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(v,"All")
+    end
+end
+function funcs:PressKey(KeyCode, options)
+    game:GetService("VirtualInputManager"):SendKeyEvent(true, KeyCode, false, game)
+    task.wait(options.Duration or 0)
+    game:GetService("VirtualInputManager"):SendKeyEvent(false, KeyCode, false, game)
+end
+function funcs:GetAnimationTrack(id)
+    local Humanoid = funcs:GetHumanoid(Players.LocalPlayer)
+    if Humanoid then
+        local animator = Humanoid.Animator
+        local animinstance1 = Instance.new("Animation")
+        animinstance1.AnimationId = id
+        local animTrack1 = animator:LoadAnimation(animinstance1)
+        return animTrack1
+    end
+    return false
+end
+function funcs:IsAnimationPlaying(player, ...)
+    local ids = {...}
+    local Humanoid = funcs:GetHumanoid(player)
+    if Humanoid then
+        for _, AnimationTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
+            if table.find(ids, AnimationTrack.Animation.AnimationId) then
+                return true
+            end
+        end
+    end
+    return false
+end
+function funcs.Table:RemoveValue(tbl, value, options)
+    for i, v in ipairs(tbl) do
+        if v == value then
+            table.remove(tbl, i)
+            if options ~= nil and options.DoNotBreak then
+                continue
+            else
+                break
+            end
+        end
+    end
+end
+function funcs:PlayerIsMoving(player)
+    local Humanoid = funcs:GetHumanoid(player)
+    if Humanoid then
+        if Humanoid.MoveDirection.Magnitude > 0 then
+            return true
+        end
+    end
+    return false
+end
+function funcs.Table:RemoveDuplicates(tbl)
+    local seen = {}
+    local output = {}
+  
+    for _, value in ipairs(tbl) do
+        if not seen[value] then
+            table.insert(output, value)
+            seen[value] = true
+        end
+    end
+  
+    return output
+end
+function funcs.Table:GetRandomValue(inputTable, options)
+    local tbl = inputTable
+    if options and type(options.ExcludeValues) == "table" then
+        for _, v in pairs(options.ExcludeValues) do
+            funcs.Table:RemoveValue(tbl, v)
+        end
+    end
+    local result = options and type(options.Amount) == "number" and {} or tbl[math.random(1, #tbl)]
+    for _ = 1, options and options.Amount or 1 do
+        local selected = tbl[math.random(1, #tbl)]
+        table.insert(result, selected)
+        if options and options.AllowDuplicates ~= true then
+            result = funcs.Table:RemoveDuplicates(result)
+        end
+    end
+    return result
+end
+funcs.Table.random = funcs.Table.GetRandomValue
+
+return funcs
+
+
+--[[
+
+
+GetCharacter(player: Player) -- Returns false if not found
+GetHumanoid(player: Player) -- Returns false if not found
+GetHumanoidRootPart(player: Player) -- Returns false if not found
+GetDistanceBetweenPlayers(player1: Player, player2: Player) -- Returns nil if not found
+Notify(Title, Text, Duration: number, options (optional): table)
+GetDistanceBetweenParts(part1, part2) -- Returns nil if not found
+GetPlayer(name, options: Table) -- Gets players by shortened e.g. Rob = Roblox
+Teleport(Pos: CFrame or Vector3, options: Table)
+TeleportToPlayer(player: Player)
+
+
+]]
