@@ -8,7 +8,7 @@ function Ap.Balls()
     for _, ball in pairs(workspace:WaitForChild("Balls"):GetChildren()) do
         if ball:IsA("BasePart") and ball:GetAttribute("realBall") then
             table.insert(Balls, ball)
-            if #Balls == 2 then
+            if #Balls == 20 then
                 break
             end
         end
