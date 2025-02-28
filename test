@@ -5,8 +5,7 @@ local localPlayer = Players.LocalPlayer
 
 function Ap.Balls()
     local Balls = {}
-    
-    -- Coletando as bolas da pasta "Balls"
+
     for _, ball in pairs(workspace:WaitForChild("Balls"):GetChildren()) do
         if ball:IsA("BasePart") and ball:GetAttribute("realBall") then
             table.insert(Balls, ball)
@@ -15,8 +14,7 @@ function Ap.Balls()
             end
         end
     end
-    
-    -- Coletando as training balls da pasta "TrainingBalls"
+
     for _, trainingBall in pairs(workspace:WaitForChild("TrainingBalls"):GetChildren()) do
         if trainingBall:IsA("BasePart") and trainingBall:GetAttribute("realBall") then
             table.insert(Balls, trainingBall)
